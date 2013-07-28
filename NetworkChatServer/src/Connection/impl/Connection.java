@@ -90,9 +90,6 @@ public class Connection implements IConnection {
 	 */
 	public Connection(int port) {
 		
-		// Configure the logger with Basic
-		BasicConfigurator.configure();
-		
 		// Init the server
 		log.info("Initialize the Connection");
 		
