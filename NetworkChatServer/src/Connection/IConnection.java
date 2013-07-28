@@ -41,6 +41,14 @@ public interface IConnection {
 	public String getMessageFromThreadID(int ThreadID);
 	
 	/**
+	 * Get a message from the Client with the specific ThreadID if there is no message it will block
+	 * @param ThreadID - Selects the Client where the message should read
+	 * <br>
+	 * @return On success it returns the <b>String</b> with the Value on error it returns <b>null</b>
+	 */
+	public String getMessageFromThreadIDBlocked(int ThreadID);
+	
+	/**
 	 * Get the status of the Client Connection
 	 * @param ThreadID - Selects the Client where you want get the status
 	 * <br>

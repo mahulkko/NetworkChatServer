@@ -1,5 +1,9 @@
 package NetworkChatServer;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import Connection.IConnection;
 import Connection.impl.Connection;
 
@@ -12,14 +16,20 @@ public class NetworkChatServer {
 		IConnection con = new Connection(12345);
 		con.startServer();
 		
+		InputStreamReader isr = new InputStreamReader(System.in);
+	    BufferedReader br = new BufferedReader(isr);
+		
 		while(true) {
-			for(int i = 0; i < con.getMaxConnections(); i++) {
-				String message = con.getMessageFromThreadID(i);
-				if(message != null) {
-					System.out.println("New Message from Client " + i + ": " + message);
+			
+			try {
+				String msg = br.readLine();
+				for(int i = 0; i < con.getMaxConnections(); i++) {
+					con.sendMessageToThreadID(i, msg);
 				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
-
 }
