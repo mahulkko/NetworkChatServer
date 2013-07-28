@@ -35,7 +35,7 @@ public class Connection implements IConnection {
 	/**
 	 * Number of the Max Connections
 	 */
-	int SIZECLIENTS = 100; 
+	int SIZECLIENTS = 1; 
 	
 	/**
 	 * ServerSocket for the connection
@@ -98,6 +98,9 @@ public class Connection implements IConnection {
 		initThreadArray();
 	}
 	
+	/**
+	 * Sets all fields on the thread array to null
+	 */
 	private void initThreadArray() {
 		// Set all to null
 		log.info("Set all Threads to null");
@@ -107,6 +110,45 @@ public class Connection implements IConnection {
 		}
 	}
 	
+	/**
+	 * increase the place of the message and thread array if there is no space
+	 * @param newCapacity - Size of the new arrays
+	 */
+	private void ensureCapacity(int newCapacity) {
+		// The new capacity must bigger then the old capacity
+		log.info("ensureCapacity - make the thread/message array bigger");
+		if(newCapacity < SIZECLIENTS) {
+			log.error("New capacity is less then the old capayity - no change was made");
+			return;
+		}
+		
+		// Make the thread array bigger
+		log.info("increase the space of the thread array");
+		Thread[] old = thread;
+		log.info("create new thread array");
+		thread = new Thread[newCapacity];
+		initThreadArray();
+		log.info("copy old thread array to the new array");
+		System.arraycopy(old, 0, thread, 0, SIZECLIENTS);
+		
+		// Make the message thread bigger
+		log.info("increase the space of the message array");
+		Message[] old2 = message;
+		log.info("create new message array");
+		message = new Message[newCapacity];
+		log.info("copy old message array to the new array");
+		System.arraycopy(old2, 0, message, 0, SIZECLIENTS);
+		
+		// Set new capacity
+		log.info("set the capacity to the new capacity");
+		SIZECLIENTS = newCapacity;
+	} 
+	
+	/**
+	 * Manage the connection of the clients and look for a free place
+	 * @param socket - Socket where the server is listen on it
+	 * @return - returns the value of the place where the new thread is located
+	 */
 	private int manageConnection(Socket socket) {
 		// Checks for a free place in the Array
 		log.info("Checks for a free place in the Thread");
@@ -126,6 +168,8 @@ public class Connection implements IConnection {
 			}
 		}
 		log.warn("No free place found for a Thread!");
+		ensureCapacity(SIZECLIENTS * 2);
+		manageConnection(socket);
 		return -1;
 	}
 
@@ -232,8 +276,16 @@ public class Connection implements IConnection {
 	}
 	
 	// Inner class for the accept of the clients
+	/**
+	 * AcceptClients - Thread class for the accept of new clients
+	 * @author Martin Hulkkonen
+	 *
+	 */
 	private class AcceptClients implements Runnable {
 
+		/**
+		 * Waiting for new clients and accept them.
+		 */
 		@Override
 		public void run() {
 			Socket socket;
@@ -255,14 +307,43 @@ public class Connection implements IConnection {
 	}
 	
 	// Inner class for the threads to receive messages
+	/**
+	 * Message - Thread class for sending and receiving messages from clients
+	 * @author Martin
+	 *
+	 */
 	private class Message implements Runnable {
 
+		/**
+		 * BufferedReder for the InputStream
+		 */
 		private BufferedReader in;
+		
+		/**
+		 * PrintWriter for the OutputStream
+		 */
 		private PrintWriter out;
+		
+		/**
+		 * ThreadID of the Thread
+		 */
 		private int ThreadID;
+		
+		/**
+		 * Queue for saving messages from the clients
+		 */
 		private LinkedBlockingQueue<String> queue;
+		
+		/**
+		 * Socket fro the connection to the client
+		 */
 		private Socket socket;
 		
+		/**
+		 * Initialize the thread
+		 * @param socket - Socket where the thread should communicate with
+		 * @param ThreadID - ID where the thread is locatet on the thread array
+		 */
 		public Message(Socket socket, int ThreadID){
 			try {
 				// Initialize the Input and Output Stream
@@ -279,12 +360,20 @@ public class Connection implements IConnection {
 			}
 		}
 		
+		/**
+		 * Gets a message from the Client without blocking
+		 * @return on success it returns the string on failure it returns null
+		 */
 		public String getMessageFromClient() {
 			String msg = this.queue.poll();
 			logMessage.info("Received Message from Client: " + msg);
 			return msg;
 		}
 		
+		/**
+		 * Gets a message from the Client if no message is there it will wait
+		 * @return on success it returns the string on failure it returns null
+		 */
 		public String getMessageFromClientBlocked() {
 			String msg;
 			try {
@@ -297,11 +386,18 @@ public class Connection implements IConnection {
 			return null;
 		}
 		
+		/**
+		 * Sends a message to the client
+		 * @param msg - Message that send to the client
+		 */
 		public void sendMessageToClient(String msg){
 			logMessage.info("Send Message to Client: " + msg);
 			this.out.println(msg);
 		}
 		
+		/**
+		 * Thread function thats waiting for new messages from the client
+		 */
 		@Override
 		public void run() {
 			logMessage.info("Receive Thread with ThreadID: " + this.ThreadID + " started");
