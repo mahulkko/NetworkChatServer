@@ -1,11 +1,12 @@
-/*
- * Connection Interface - IConnection
- * Written by Martin Hulkkonen
- */
-
 package Connection;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 /**
+ * Connection Interface - IConnection
+ * <br>
+ * Written by Martin Hulkkonen
+ * <br>
  * Server managed the different connections from the clients
  * @author Martin Hulkkonen
  */
@@ -33,20 +34,28 @@ public interface IConnection {
 	public void sendMessageToThreadID(int ThreadID, String msg);
 	
 	/**
-	 * Get a message from the Client with the specific ThreadID
-	 * @param ThreadID - Selects the Client where the message should read
+	 * Insert a new LinkedBlockingQueue for receiving messages
+	 * @param ThreadID - ThreadID were where the messages come from
+	 * @param queue - Queue were the messages from the server are saved
+	 * @return When the queue is successfully insert it will returns <b>true</b> on error it returns <b>false</b>
 	 * <br>
-	 * @return On success it returns the <b>String</b> with the Value on error or if there is no message it returns <b>null</b>
+	 * <b><u>Note:</u></b>
+	 * <br>
+	 * You can use only one LinkedBlockingDeque for receiving messages from different threads
 	 */
-	public String getMessageFromThreadID(int ThreadID);
+	public boolean startReceiveMessagesFromThreadID(int ThreadID, LinkedBlockingQueue<String> queue);
 	
 	/**
-	 * Get a message from the Client with the specific ThreadID if there is no message it will block
-	 * @param ThreadID - Selects the Client where the message should read
+	 * Get the queue to stop receiving messages to it
+	 * @param ThreadID - ThreadID where the messages come from
+	 * @param queue - Queue where should stop getting messages
+	 * @return When the queue is successfully deleted it will returns <b>true</b> on error it returns <b>false</b>
 	 * <br>
-	 * @return On success it returns the <b>String</b> with the Value on error it returns <b>null</b>
+	 * <b><u>Note:</u></b>
+	 * <br>
+	 * You can use only one LinkedBlockingDeque for receiving messages from different threads
 	 */
-	public String getMessageFromThreadIDBlocked(int ThreadID);
+	public boolean stopReceiveMessagesFromThreadID(int ThreadID, LinkedBlockingQueue<String> queue);
 	
 	/**
 	 * Get the status of the Client Connection

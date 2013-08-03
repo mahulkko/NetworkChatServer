@@ -1,13 +1,4 @@
 
-/* Connection Class - Connection
- * Written by Martin Hulkkonen
- * 
- * Connection 
- * ==========
- * Manages the connection between the different clients witch connect to it 
- * 
- */
-
 package Connection.impl;
 
 import java.io.BufferedReader;
@@ -16,19 +7,22 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.log4j.Logger;
-
 import Connection.IConnection;
 
 /**
+ * Connection Class - Connection
+ * <br>
+ * Written by Martin Hulkkonen
+ * <br><br>
+ * <b><u>Connection</u></b>
+ * <br>
+ * Manages the connection between the different clients witch connect to it 
  * Server managed the different connections from the clients
  * @author Martin Hulkkonen
  */
-
-// TODO: make the SIZECLIENTS count with the arrays dynamically 
-// -> Ensure Capacity for the array 
 
 public class Connection implements IConnection {
 
@@ -234,22 +228,19 @@ public class Connection implements IConnection {
 	}
 	
 	@Override
-	public String getMessageFromThreadID(int ThreadID) {
-		// Get message from thread
-		if(this.clientConnected(ThreadID)) {
-			log.info("Get Message from ThreadID: " + ThreadID);
-			return this.message[ThreadID].getMessageFromClient();
+	public boolean startReceiveMessagesFromThreadID(int ThreadID, LinkedBlockingQueue<String> queue) {
+		if(clientConnected(ThreadID)) {
+			return this.message[ThreadID].startReceivingMessages(queue);
 		}
-		return null;
+		return false;
 	}
 	
-	public String getMessageFromThreadIDBlocked(int ThreadID) {
-		// Get message from thread
-		if(this.clientConnected(ThreadID)) {
-			log.info("Get Message from ThreadID: " + ThreadID);
-			return this.message[ThreadID].getMessageFromClientBlocked();
+	@Override
+	public boolean stopReceiveMessagesFromThreadID(int ThreadID, LinkedBlockingQueue<String> queue) {
+		if(clientConnected(ThreadID)) {
+			return this.message[ThreadID].stopReceivingMessages(queue);
 		}
-		return null;
+		return false;
 	}
 	
 	@Override
@@ -275,7 +266,7 @@ public class Connection implements IConnection {
 		return this.isRunning;
 	}
 	
-	// Inner class for the accept of the clients
+	
 	/**
 	 * AcceptClients - Thread class for the accept of new clients
 	 * @author Martin Hulkkonen
@@ -306,10 +297,9 @@ public class Connection implements IConnection {
 		}
 	}
 	
-	// Inner class for the threads to receive messages
 	/**
 	 * Message - Thread class for sending and receiving messages from clients
-	 * @author Martin
+	 * @author Martin Hulkkonen
 	 *
 	 */
 	private class Message implements Runnable {
@@ -330,19 +320,24 @@ public class Connection implements IConnection {
 		private int ThreadID;
 		
 		/**
-		 * Queue for saving messages from the clients
+		 * Object for the synchronization
 		 */
-		private LinkedBlockingQueue<String> queue;
+		private Object lock;
 		
 		/**
-		 * Socket fro the connection to the client
+		 * Queue for saving messages from the clients
+		 */
+		private LinkedList<LinkedBlockingQueue<String>> queue;
+		
+		/**
+		 * Socket from the connection to the client
 		 */
 		private Socket socket;
 		
 		/**
 		 * Initialize the thread
 		 * @param socket - Socket where the thread should communicate with
-		 * @param ThreadID - ID where the thread is locatet on the thread array
+		 * @param ThreadID - ID where the thread is located on the thread array
 		 */
 		public Message(Socket socket, int ThreadID){
 			try {
@@ -351,7 +346,8 @@ public class Connection implements IConnection {
 				
 				this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				this.out = new PrintWriter(socket.getOutputStream(), true);
-				this.queue = new LinkedBlockingQueue<String>();
+				this.queue = new LinkedList<LinkedBlockingQueue<String>>();
+				this.lock = new Object();
 				this.ThreadID = ThreadID;
 				this.socket = socket;
 				
@@ -361,29 +357,27 @@ public class Connection implements IConnection {
 		}
 		
 		/**
-		 * Gets a message from the Client without blocking
-		 * @return on success it returns the string on failure it returns null
+		 * Start to receive messages from these thread
+		 * @param queue - Queue that were insert in the list
+		 * @return When the queue is successfully insert it will returns <b>true</b> on error it returns <b>false</b>
 		 */
-		public String getMessageFromClient() {
-			String msg = this.queue.poll();
-			logMessage.info("Received Message from Client: " + msg);
-			return msg;
+		public boolean startReceivingMessages(LinkedBlockingQueue<String> queue) {
+			synchronized(this.lock) {
+				logMessage.info("Added queue to list");
+				return this.queue.add(queue);
+			}
 		}
 		
 		/**
-		 * Gets a message from the Client if no message is there it will wait
-		 * @return on success it returns the string on failure it returns null
+		 * Stop to receive messages from these thread
+		 * @param queue - Queue that were deleted from the list
+		 * @return When the queue is successfully deleted it will returns <b>true</b> on error it returns <b>false</b>
 		 */
-		public String getMessageFromClientBlocked() {
-			String msg;
-			try {
-				msg = this.queue.take();
-				logMessage.info("Received Message from Client: " + msg);
-				return msg;
-			} catch (InterruptedException e) {
-				logMessage.error("Cant get a Message from Client!");
+		public boolean stopReceivingMessages(LinkedBlockingQueue<String> queue) {
+			synchronized(this.lock) {
+				logMessage.info("Removed queue from list");
+				return this.queue.remove(queue);
 			}
-			return null;
 		}
 		
 		/**
@@ -404,8 +398,20 @@ public class Connection implements IConnection {
 			while(isRunning) {
 				try {
 					String msg = this.in.readLine();
-					this.queue.offer(msg);
 					logMessage.info("New Message arrived: " + msg + "(ThreadID:" + this.ThreadID + ")");
+					
+					// Add messages to the queues
+					// If there is not enough space it will wait
+					logMessage.info("Add message to the queues");
+					synchronized(lock) {
+						for(int i = 0; i < this.queue.size(); i++) {
+							try {
+								this.queue.get(i).put(msg);
+							} catch (InterruptedException e) {
+								logMessage.error("Cant put the message in the queue");
+							}
+						}		
+					}			
 				} catch (IOException e) {
 					logMessage.error("Could not read the InputStream (ThreadID:" + this.ThreadID + ")");
 					logMessage.info("Client disconnected");
