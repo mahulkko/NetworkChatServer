@@ -15,5 +15,4 @@ public interface ISplitString {
 	 * @return Returns a array with the splitting parts of the string.
 	 */
 	String[] splitStringByChar(String string, char split);
-
 }

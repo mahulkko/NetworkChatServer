@@ -21,6 +21,10 @@ public class NetworkChatServer {
 	 */
 	public static void main(String[] args) {
 		
+		
+		//TODO create the database class 
+		//TODO create the class for the user management
+		
 		// Configure the logger with Basic
 		BasicConfigurator.configure();
 		/*
