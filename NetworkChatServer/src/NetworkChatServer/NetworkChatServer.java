@@ -27,7 +27,7 @@ public class NetworkChatServer {
 		
 		// Configure the logger with Basic
 		BasicConfigurator.configure();
-		/*
+		
 		IConnection con = new Connection(12345);
 		con.startServer();
 		
@@ -46,8 +46,8 @@ public class NetworkChatServer {
 				e.printStackTrace();
 			}
 		}
-		*/
 		
+		/*
 		char space = 0x1e;
 		String test = "Hallo ^^ " + space + "wie gehts es " + space + "dir " + space + "?";
 		System.out.println(test);
@@ -57,5 +57,6 @@ public class NetworkChatServer {
 		for(int i = 0; i < splitt.length; i++) {
 			System.out.println(splitt[i]);
 		}
+		*/
 	}
 }

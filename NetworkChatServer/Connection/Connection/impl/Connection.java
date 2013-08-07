@@ -12,6 +12,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Logger;
 import Connection.IConnection;
 
+//TODO Make for the thread classes new files and set all the vars to protected  
+
 /**
  * Connection Class - Connection
  * <br>
@@ -90,81 +92,6 @@ public class Connection implements IConnection {
 		this.port = port;
 		this.isRunning = false;
 		initThreadArray();
-	}
-	
-	/**
-	 * Sets all fields on the thread array to null
-	 */
-	private void initThreadArray() {
-		// Set all to null
-		log.info("Set all Threads to null");
-		
-		for(int i = 0; i < SIZECLIENTS; i++) {
-			thread[i] = null;
-		}
-	}
-	
-	/**
-	 * increase the place of the message and thread array if there is no space
-	 * @param newCapacity - Size of the new arrays
-	 */
-	private void ensureCapacity(int newCapacity) {
-		// The new capacity must bigger then the old capacity
-		log.info("ensureCapacity - make the thread/message array bigger");
-		if(newCapacity < SIZECLIENTS) {
-			log.error("New capacity is less then the old capayity - no change was made");
-			return;
-		}
-		
-		// Make the thread array bigger
-		log.info("increase the space of the thread array");
-		Thread[] old = thread;
-		log.info("create new thread array");
-		thread = new Thread[newCapacity];
-		initThreadArray();
-		log.info("copy old thread array to the new array");
-		System.arraycopy(old, 0, thread, 0, SIZECLIENTS);
-		
-		// Make the message thread bigger
-		log.info("increase the space of the message array");
-		Message[] old2 = message;
-		log.info("create new message array");
-		message = new Message[newCapacity];
-		log.info("copy old message array to the new array");
-		System.arraycopy(old2, 0, message, 0, SIZECLIENTS);
-		
-		// Set new capacity
-		log.info("set the capacity to the new capacity");
-		SIZECLIENTS = newCapacity;
-	} 
-	
-	/**
-	 * Manage the connection of the clients and look for a free place
-	 * @param socket - Socket where the server is listen on it
-	 * @return - returns the value of the place where the new thread is located
-	 */
-	private int manageConnection(Socket socket) {
-		// Checks for a free place in the Array
-		log.info("Checks for a free place in the Thread");
-		
-		for(int i = 0; i < SIZECLIENTS; i++) {
-			if(thread[i] == null) {
-				log.info("Found a free place at position: " + i);
-				
-				// Start a new thread for the receive
-				log.info("Create and start a new Thread");
-				
-				this.message[i] = new Message(socket, i);
-				thread[i] = new Thread(this.message[i]);
-				thread[i].start();
-				
-				return i;
-			}
-		}
-		log.warn("No free place found for a Thread!");
-		ensureCapacity(SIZECLIENTS * 2);
-		manageConnection(socket);
-		return -1;
 	}
 
 	@Override
@@ -264,6 +191,81 @@ public class Connection implements IConnection {
 	@Override
 	public boolean isRunning() {
 		return this.isRunning;
+	}
+	
+	/**
+	 * Sets all fields on the thread array to null
+	 */
+	private void initThreadArray() {
+		// Set all to null
+		log.info("Set all Threads to null");
+		
+		for(int i = 0; i < SIZECLIENTS; i++) {
+			thread[i] = null;
+		}
+	}
+	
+	/**
+	 * increase the place of the message and thread array if there is no space
+	 * @param newCapacity - Size of the new arrays
+	 */
+	private void ensureCapacity(int newCapacity) {
+		// The new capacity must bigger then the old capacity
+		log.info("ensureCapacity - make the thread/message array bigger");
+		if(newCapacity < SIZECLIENTS) {
+			log.error("New capacity is less then the old capayity - no change was made");
+			return;
+		}
+		
+		// Make the thread array bigger
+		log.info("increase the space of the thread array");
+		Thread[] old = thread;
+		log.info("create new thread array");
+		thread = new Thread[newCapacity];
+		initThreadArray();
+		log.info("copy old thread array to the new array");
+		System.arraycopy(old, 0, thread, 0, SIZECLIENTS);
+		
+		// Make the message thread bigger
+		log.info("increase the space of the message array");
+		Message[] old2 = message;
+		log.info("create new message array");
+		message = new Message[newCapacity];
+		log.info("copy old message array to the new array");
+		System.arraycopy(old2, 0, message, 0, SIZECLIENTS);
+		
+		// Set new capacity
+		log.info("set the capacity to the new capacity");
+		SIZECLIENTS = newCapacity;
+	} 
+	
+	/**
+	 * Manage the connection of the clients and look for a free place
+	 * @param socket - Socket where the server is listen on it
+	 * @return - returns the value of the place where the new thread is located
+	 */
+	private int manageConnection(Socket socket) {
+		// Checks for a free place in the Array
+		log.info("Checks for a free place in the Thread");
+		
+		for(int i = 0; i < SIZECLIENTS; i++) {
+			if(thread[i] == null) {
+				log.info("Found a free place at position: " + i);
+				
+				// Start a new thread for the receive
+				log.info("Create and start a new Thread");
+				
+				this.message[i] = new Message(socket, i);
+				thread[i] = new Thread(this.message[i]);
+				thread[i].start();
+				
+				return i;
+			}
+		}
+		log.warn("No free place found for a Thread!");
+		ensureCapacity(SIZECLIENTS * 2);
+		manageConnection(socket);
+		return -1;
 	}
 	
 	
