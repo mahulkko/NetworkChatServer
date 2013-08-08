@@ -1,16 +1,16 @@
-package Connection;
+package NetworkConnection;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Connection Interface - IConnection
+ * NetworkConnection Interface - INetworkConnection
  * <br>
  * Written by Martin Hulkkonen
  * <br>
  * Server managed the different connections from the clients
  * @author Martin Hulkkonen
  */
-public interface IConnection {
+public interface INetworkConnection {
 	
 	/**
 	 * Starts the server and waits for connections

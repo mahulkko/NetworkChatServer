@@ -1,4 +1,4 @@
-package Connection.impl;
+package NetworkConnection.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,7 +9,8 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Logger;
-import Connection.IConnection;
+
+import NetworkConnection.INetworkConnection;
 
 //TODO Make for the thread classes new files and set all the vars to protected 
 //TODO Make a database connection for the management
@@ -17,7 +18,7 @@ import Connection.IConnection;
 //TODO add in the thread a method to receive from all active threads messages
 
 /**
- * Connection Class - Connection
+ * NetworkConnection Class - NetworkConnection
  * <br>
  * Written by Martin Hulkkonen
  * <br><br>
@@ -28,7 +29,7 @@ import Connection.IConnection;
  * @author Martin Hulkkonen
  */
 
-public class Connection implements IConnection {
+public class NetworkConnection implements INetworkConnection {
 
 	/**
 	 * Number of the Max Connections
@@ -85,7 +86,7 @@ public class Connection implements IConnection {
 	 * <br>
 	 * @param port - Set the port where the serve should run 
 	 */
-	public Connection(int port) {
+	public NetworkConnection(int port) {
 		
 		// Init the server
 		log.info("Initialize the Connection");

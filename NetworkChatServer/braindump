@@ -1,3 +1,17 @@
 
 Martin Hulkkonen - Braindump
 =============================
+DatenbankConnection erstellen
+- connect
+- disconnect
+- create table 
+
+Networkconnection
+- Auto add to all new treads programmieren
+
+UserManagement
+- User regestrieren
+- einloggen
+- ausloggen
+- adduser
+- deluser

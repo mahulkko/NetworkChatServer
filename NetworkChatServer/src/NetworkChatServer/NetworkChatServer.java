@@ -7,10 +7,11 @@ import java.io.InputStreamReader;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
+import DatabaseConnection.impl.DatabaseConnection;
+import NetworkConnection.INetworkConnection;
+import NetworkConnection.impl.NetworkConnection;
 import String.impl.SplitString;
 
-import Connection.IConnection;
-import Connection.impl.Connection;
 
 public class NetworkChatServer {
 	
@@ -28,7 +29,11 @@ public class NetworkChatServer {
 		// Configure the logger with Basic
 		BasicConfigurator.configure();
 		
-		IConnection con = new Connection(12345);
+		DatabaseConnection con = new DatabaseConnection();
+		con.test();
+	
+		/*
+		INetworkConnection con = new NetworkConnection(12345);
 		con.startServer();
 		
 		InputStreamReader isr = new InputStreamReader(System.in);
