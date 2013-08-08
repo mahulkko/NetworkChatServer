@@ -1,4 +1,3 @@
-
 package Connection.impl;
 
 import java.io.BufferedReader;
@@ -12,7 +11,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Logger;
 import Connection.IConnection;
 
-//TODO Make for the thread classes new files and set all the vars to protected  
+//TODO Make for the thread classes new files and set all the vars to protected 
+//TODO Make a database connection for the management
+//TODO create the class usermanagement for manageing the users
+//TODO add in the thread a method to receive from all active threads messages
 
 /**
  * Connection Class - Connection
