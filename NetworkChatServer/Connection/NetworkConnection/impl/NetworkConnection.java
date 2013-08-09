@@ -14,7 +14,7 @@ import NetworkConnection.INetworkConnection;
 
 //TODO Make for the thread classes new files and set all the vars to protected 
 //TODO Make a database connection for the management
-//TODO create the class usermanagement for manageing the users
+//TODO create the class user management for manageing the users
 //TODO add in the thread a method to receive from all active threads messages
 
 /**
