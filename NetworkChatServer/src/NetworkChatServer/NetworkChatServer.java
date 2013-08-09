@@ -14,8 +14,6 @@ import String.impl.SplitString;
 
 
 public class NetworkChatServer {
-	
-	static Logger log = Logger.getLogger("Util.SplitString");
 
 	/**
 	 * @param args
@@ -30,7 +28,8 @@ public class NetworkChatServer {
 		BasicConfigurator.configure();
 		
 		DatabaseConnection con = new DatabaseConnection();
-		con.test();
+		con.Connect("localhost", "test","root","");
+		con.Disconnect();
 	
 		/*
 		INetworkConnection con = new NetworkConnection(12345);

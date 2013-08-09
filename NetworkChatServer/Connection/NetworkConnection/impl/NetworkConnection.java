@@ -52,7 +52,7 @@ public class NetworkConnection implements INetworkConnection {
 	private Thread acceptThread;
 	
 	/**
-	 * Receive Array to manage the Functions of the Threads
+	 * Receive Array to manage the functions of the threads
 	 */
 	private Message message[] = new Message[SIZECLIENTS];
 	
@@ -67,19 +67,19 @@ public class NetworkConnection implements INetworkConnection {
 	private boolean isRunning;
 	
 	/**
-	 * Logger for log4j Connection
+	 * Logger for log4j connection
 	 */
-	static Logger log = Logger.getLogger("Connection");
+	static Logger log = Logger.getLogger("Connection.NetworkConnection");
 	
 	/**
 	 * Logger for log4j acceptClients
 	 */
-	static Logger logClients = Logger.getLogger("Connection.Clients");
+	static Logger logClients = Logger.getLogger("Connection.NetworkConnection.Clients");
 	
 	/**
-	 * Logger for log4j Receive
+	 * Logger for log4j receive
 	 */
-	static Logger logMessage = Logger.getLogger("Connection.Message");
+	static Logger logMessage = Logger.getLogger("Connection.NetworkConnection.Message");
 	
 	/**
 	 * Set the port to the value and initialize all for the start
