@@ -174,6 +174,16 @@ public class NetworkConnection implements INetworkConnection {
 	}
 	
 	@Override
+	public boolean startAutoReceiveFromAllThreads(LinkedBlockingQueue<String> queue) {
+		return false;
+	}
+	
+	@Override
+	public boolean stopAutoReceiveFromAllThreads(LinkedBlockingQueue<String> queue) {
+		return false;
+	}
+	
+	@Override
 	public boolean clientConnected(int ThreadID) {
 		// Proof if the client is connected
 		if(ThreadID < this.SIZECLIENTS) {

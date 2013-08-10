@@ -1,6 +1,20 @@
 
 Martin Hulkkonen - Braindump
 =============================
+
+Datenbank
+----------
+Für jedes Management soll es eine eigene Datenbankverbindung geben.
+Ist jetzt nicht performance technisch so schön, jedoch ist die datenbankklasse nicht threadsafe.
+Was man jedoch später villt noch ändern könnte. Vorerst wird jedes Management seine eigene Datenbankverbindung aufbauen und halten.
+
+NetzwerkConnection
+-------------------
+Aufjedenfall als nächstes einmal refactorn.
+Schwer zu ändern und nicht flexiblel. 
+Alle Threads in eigene klassen packen.
+
+
 DatenbankConnection erstellen
 - connect
 - disconnect

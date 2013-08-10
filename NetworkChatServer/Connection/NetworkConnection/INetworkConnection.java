@@ -58,6 +58,20 @@ public interface INetworkConnection {
 	public boolean stopReceiveMessagesFromThreadID(int ThreadID, LinkedBlockingQueue<String> queue);
 	
 	/**
+	 * Insert a queue to receive all messages from all running threads - it will insert it automatically for new connections
+	 * @param queue - Queue were the messages where send to
+	 * @return On success it will return <b>true</b> on failure <b>false</b> 
+	 */
+	public boolean startAutoReceiveFromAllThreads(LinkedBlockingQueue<String> queue);
+	
+	/**
+	 * Insert a queue to stop receive all messages from all running threads
+	 * @param queue - Queue who wants to stop receiving messages
+	 * @return On success it will return <b>true</b> on failure <b>false</b> 
+	 */
+	public boolean stopAutoReceiveFromAllThreads(LinkedBlockingQueue<String> queue);
+	
+	/**
 	 * Get the status of the Client Connection
 	 * @param ThreadID - Selects the Client where you want get the status
 	 * <br>
