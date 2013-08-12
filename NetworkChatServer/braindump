@@ -2,6 +2,11 @@
 Martin Hulkkonen - Braindump
 =============================
 
+Connection klasse weiter aufteilen 
+- start,stop, isrunning gehören in die networkconnection klasse
+connection umbenennen(manager oder so nennen) und nur als datenspeicher verwenden. 
+danach Networkconnection weiter programmieren.
+
 Datenbank
 ----------
 Für jedes Management soll es eine eigene Datenbankverbindung geben.
