@@ -11,17 +11,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Logger;
 
 /**
- * Message - Thread class for sending and receiving messages from clients
+ * Communication - Thread class for sending and receiving messages from clients
  * @author Martin Hulkkonen
  *
  */
-public class Message implements Runnable {
+public class Communication implements Runnable {
 	
 	/**
 	 * Class for the Connection
 	 */
-	private Connection con;
-
+	private ConnectionManagement con;
+	
 	/**
 	 * BufferedReder for the InputStream
 	 */
@@ -53,27 +53,26 @@ public class Message implements Runnable {
 	private Socket socket;
 	
 	/**
-	 * Logger for log4j receive
+	 * Logger for log4j connection
 	 */
-	static Logger log = Logger.getLogger("Connection.NetworkConnection.Message");
+	static Logger log = Logger.getLogger("Connection.NetworkConnection.Communication");
 	
 	/**
 	 * Initialize the thread
 	 * @param socket - Socket where the thread should communicate with
 	 * @param ThreadID - ID where the thread is located on the thread array
+	 * @param con - ConnectionManagement Class
 	 */
-	public Message(Socket socket, int ThreadID, Connection con){
+	public Communication(Socket socket, int ThreadID, ConnectionManagement con){
 		try {
 			// Initialize the Input and Output Stream
 			log.info("Initialize Receive Thread with ThreadID: " + ThreadID);
-			
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			this.out = new PrintWriter(socket.getOutputStream(), true);
 			this.queue = new LinkedList<LinkedBlockingQueue<String>>();
 			this.lock = new Object();
 			this.ThreadID = ThreadID;
 			this.socket = socket;
-			this.con = con;
 			
 		} catch (IOException e) {
 			log.error("Failure by initializing the Thread with ThreadID: " + ThreadID);
@@ -119,7 +118,7 @@ public class Message implements Runnable {
 	@Override
 	public void run() {
 		log.info("Receive Thread with ThreadID: " + this.ThreadID + " started");
-		while(con.isRunning()) {
+		while(this.con.getServerStatus()) {
 			try {
 				String msg = this.in.readLine();
 				log.info("New Message arrived: " + msg + "(ThreadID:" + this.ThreadID + ")");
@@ -142,7 +141,7 @@ public class Message implements Runnable {
 				break;
 			}
 		}
-	this.con.setThreadToNull(ThreadID);
+	this.con.setThreadToNull(this.ThreadID);
 	try {
 		log.info("Close connection from client (ThreadID:" + this.ThreadID + ")");
 		this.socket.close();

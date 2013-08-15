@@ -10,19 +10,19 @@ import org.apache.log4j.Logger;
  * @author Martin Hulkkonen
  *
  */
-public class AcceptClients implements Runnable {
+public class AcceptClient implements Runnable {
 	
 	/**
 	 * Connection Class 
 	 */
-	private Connection con;
+	private ConnectionManagement con;
 	
 	/**
 	 * Logger for log4j acceptClients
 	 */
-	static Logger log = Logger.getLogger("Connection.NetworkConnection.AcceptClients");
+	static Logger log = Logger.getLogger("Connection.NetworkConnection.AcceptClient");
 	
-	public AcceptClients(Connection con) {
+	public AcceptClient(ConnectionManagement con) {
 		this.con = con;
 	}
 
@@ -35,12 +35,12 @@ public class AcceptClients implements Runnable {
 		log.info("AcceptClients Thread started");
 		try {
 			// Let the server work
-			while(con.isRunning()) {
+			while(this.con.getServerStatus()) {
 				// Accept new connections
 				log.info("Wait for new Clients");
-				socket = con.getSocket().accept();
+				socket = this.con.getSocket().accept();
 				log.info("New client accepted");
-				con.startNewMessageThread(socket);
+				this.con.manageConnection(socket);
 			}
 		} catch (IOException e) {
 			log.error("Could not Accept a new client");

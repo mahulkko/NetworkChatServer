@@ -2,6 +2,9 @@
 Martin Hulkkonen - Braindump
 =============================
 
+TODO: 	Autoreceive für die klassen einbauen und check if thread is connected
+		Sowie schauen, dass die klasse threadsafe wird.
+
 Connection klasse weiter aufteilen 
 - start,stop, isrunning gehören in die networkconnection klasse
 connection umbenennen(manager oder so nennen) und nur als datenspeicher verwenden. 
