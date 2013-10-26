@@ -2,9 +2,6 @@ package NetworkChatServer;
 
 public class NetworkChatServer {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		
 		
