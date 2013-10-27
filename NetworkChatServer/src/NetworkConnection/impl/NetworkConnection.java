@@ -2,21 +2,29 @@ package NetworkConnection.impl;
 
 import NetworkConnection.INetworkConnection;
 
+/**
+ * 
+ * @author Martin Hulkkonen
+ *
+ */
 public class NetworkConnection implements INetworkConnection {
 
-	private NetworkConnectionManager mNetworkConnectionManager;
+	/**
+	 * NetworkConnectionManager - Manage the connection
+	 */
+	private NetworkConnectionManager networkConnectionManager;
 	
 	public NetworkConnection() {
-		mNetworkConnectionManager = new NetworkConnectionManager();
+		this.networkConnectionManager = new NetworkConnectionManager();
 	}
 
 	@Override
-	public boolean connect(int port) {
-		return this.mNetworkConnectionManager.connect(port);
+	public boolean startServer(int port) {
+		return this.networkConnectionManager.startServer(port);
 	}
 
 	@Override
-	public boolean disconnect() {
-		return this.mNetworkConnectionManager.disconnect();
+	public boolean stopServer() {
+		return this.networkConnectionManager.stopServer();
 	}
 }
