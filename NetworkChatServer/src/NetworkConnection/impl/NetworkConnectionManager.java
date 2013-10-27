@@ -3,6 +3,7 @@ package NetworkConnection.impl;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
@@ -139,7 +140,7 @@ public class NetworkConnectionManager {
 			if (thread[i] == null) {
 				log.info("Found a place for the client");
 				log.info("Create a new connection thread - ThreadId: " + i);
-				this.connection[i] = new Connection(socket, i);
+				this.connection[i] = new Connection(socket, i, this);
 				thread[i] = new Thread(this.connection[i]);
 				log.info("Start the connection thread - ThreadId: " +i);
 				thread[i].start();
@@ -150,6 +151,61 @@ public class NetworkConnectionManager {
 		ensureCapacity(SIZECLIENTS * 2);
 		manageNewConnection(socket);
 		return -1;
+	}
+	
+	/**
+	 * 
+	 * @param queue - Queue where the messages where saved
+	 * @param threadId - Id of the thread where receive the messages
+	 * @return Returns <b>true</b> if the Queue is successful added and returns <b>false</b> when something gone wrong
+	 */
+	public boolean startReceivingMessagesFromThreadId(LinkedBlockingQueue<String> queue, int threadId) {
+		if (this.connection.length > threadId && null != this.connection[threadId]) {
+			this.connection[threadId].startReceivingMessages(queue);
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param queue - Queue where the messages where saved
+	 * @param threadId - Id of the thread where stop receive the messages
+	 * @return Returns <b>true</b> if the Queue is successful added and returns <b>false</b> when something gone wrong
+	 */
+	public boolean stopReceivingMessagesFromThreadId(LinkedBlockingQueue<String> queue, int threadId) {
+		if (this.connection.length > threadId && null != this.connection[threadId]) {
+			this.connection[threadId].stopReceivingMessages(queue);
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param msg - Message where send to the client 
+	 * @param threadId - Id of the client
+	 * @return Returns <b>true</b> when the message where sent to the client and <b>false</b> on failure
+	 */
+	public boolean sendMessageToThreadId(String msg, int threadId) {
+		if (this.connection.length > threadId && null != this.connection[threadId]) {
+			this.connection[threadId].sendMessageToClient(msg);
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param threadId - Set this thread to null
+	 * @return On success it will return <b>true</b> on failure <b>false</b>
+	 */
+	public boolean setThreadToNull(int threadId) {
+		if (this.thread.length > threadId) {
+			this.thread[threadId] = null;
+			return true;
+		}
+		return false;
 	}
 	
 	/**

@@ -1,5 +1,7 @@
 package NetworkConnection.impl;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 import NetworkConnection.INetworkConnection;
 
 /**
@@ -26,5 +28,20 @@ public class NetworkConnection implements INetworkConnection {
 	@Override
 	public boolean stopServer() {
 		return this.networkConnectionManager.stopServer();
+	}
+
+	@Override
+	public boolean startReceivingMessagesFromThreadId(LinkedBlockingQueue<String> queue, int threadId) {
+		return this.networkConnectionManager.startReceivingMessagesFromThreadId(queue, threadId);
+	}
+
+	@Override
+	public boolean stopReceivingMessagesFromThreadId(LinkedBlockingQueue<String> queue, int threadId) {
+		return this.networkConnectionManager.stopReceivingMessagesFromThreadId(queue, threadId);
+	}
+
+	@Override
+	public boolean sendMessageToThreadId(String msg, int threadId) {
+		return this.sendMessageToThreadId(msg, threadId);
 	}
 }

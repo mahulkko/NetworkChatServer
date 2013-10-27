@@ -51,5 +51,6 @@ public class AcceptClients implements Runnable {
 				log.error("Failed to accept a new client");
 			}
 		}
+		log.info("AcceptClients thread is stopping");
 	}
 }
