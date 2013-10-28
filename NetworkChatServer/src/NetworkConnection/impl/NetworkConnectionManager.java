@@ -3,6 +3,7 @@ package NetworkConnection.impl;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
@@ -55,6 +56,11 @@ public class NetworkConnectionManager {
 	private Thread acceptClients;
 	
 	/**
+	 * Vector for the Queues with the Receive from all threads function
+	 */
+	private Vector<LinkedBlockingQueue<String>> queue;
+	
+	/**
 	 * Logger for log4j connection
 	 */
 	static Logger log = Logger.getLogger("NetworkConnection.NetworkConnectionManager");
@@ -68,11 +74,12 @@ public class NetworkConnectionManager {
 		this.server = null;
 		this.port = -1;
 		this.isRunning = false;
-		this.lock = new Object();		
+		this.lock = new Object();
+		this.queue = new Vector<LinkedBlockingQueue<String>>();
 	}
 	
 	/**
-	 * 
+	 * Starts the server on the given port
 	 * @param port - port where the server is listen on it
 	 * @return Returns <b>true</b> if the server is starting correctly and <b>false</b> on error
 	 */
@@ -104,7 +111,7 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Stops the running server
 	 * @return Returns <b>true</b> if the server is stopping correctly and <b>false</b> on error
 	 */
 	public boolean stopServer() {
@@ -130,13 +137,13 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Manage the connection of a new client
 	 * @param socket - Socket of the new accepted client
 	 * @return Returns the ThreadId of the accepted thread
 	 */
 	public int manageNewConnection(Socket socket) {
 		log.info("Search a place for the client");
-		for (int i = 0; i < SIZECLIENTS; i++) {
+		for (int i = 0; i < SIZECLIENTS; ++i) {
 			if (thread[i] == null) {
 				log.info("Found a place for the client");
 				log.info("Create a new connection thread - ThreadId: " + i);
@@ -144,6 +151,11 @@ public class NetworkConnectionManager {
 				thread[i] = new Thread(this.connection[i]);
 				log.info("Start the connection thread - ThreadId: " +i);
 				thread[i].start();
+				log.info("Insert the queues where listen to the new client");
+				
+				for (int k = 0; k < this.queue.size(); ++k) {
+					this.connection[i].startReceivingMessages(this.queue.elementAt(k));
+				}
 				return i;
 			}
 		}
@@ -154,7 +166,7 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Starts receiving messages from a special single thread
 	 * @param queue - Queue where the messages where saved
 	 * @param threadId - Id of the thread where receive the messages
 	 * @return Returns <b>true</b> if the Queue is successful added and returns <b>false</b> when something gone wrong
@@ -168,7 +180,26 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Starts receiving messages from all active threads
+	 * @param queue - Queue where the messages were saved
+	 * @return Returns <b>true</b> if the Queue is successful added and returns <b>false</b> when something gone wrong
+	 * <br><br><b>Note:</b> The threads where will connect in the future are included too.
+	 */
+	public boolean startReceivingMessagesFromAllThreads(LinkedBlockingQueue<String> queue) {
+		if (!this.queue.contains(queue)) {
+			this.queue.add(queue);
+			for (int i = 0; i < this.connection.length; ++i) {
+				if (null != this.connection[i]) {
+					this.connection[i].startReceivingMessages(queue);
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Stops receiving messages from a special single thread 
 	 * @param queue - Queue where the messages where saved
 	 * @param threadId - Id of the thread where stop receive the messages
 	 * @return Returns <b>true</b> if the Queue is successful added and returns <b>false</b> when something gone wrong
@@ -182,7 +213,26 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Stops receiving messages from all active threads threads
+	 * @param queue - Queue where the messages where saved
+	 * @return Returns <b>true</b> if the Queue is successful deleted and returns <b>false</b> when something gone wrong
+	 * <br><br><b>Note:</b> All queues which were insert by the single message method were deleted too.
+	 */
+	public boolean stopReceivingMessagesFromAllThreads(LinkedBlockingQueue<String> queue) {
+		if (this.queue.contains(queue)) {
+			this.queue.remove(queue);
+			for (int i = 0; i < this.connection.length; ++i) {
+				if (null != this.connection[i]) {
+					this.connection[i].stopReceivingMessages(queue);
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Sends a message to the client with the thread id
 	 * @param msg - Message where send to the client 
 	 * @param threadId - Id of the client
 	 * @return Returns <b>true</b> when the message where sent to the client and <b>false</b> on failure
@@ -196,7 +246,7 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Set the thread in the array to null
 	 * @param threadId - Set this thread to null
 	 * @return On success it will return <b>true</b> on failure <b>false</b>
 	 */
@@ -209,7 +259,20 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Set the connection in the array to null
+	 * @param connectionId - Set this connection to null
+	 * @return On success it will return <b>true</b> on failure <b>false</b>
+	 */
+	public boolean setConnectionToNull(int threadId) {
+		if (this.connection.length > threadId) {
+			this.connection[threadId] = null;
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Get the server socket from the connection
 	 * @return Returns the used server socket
 	 */
 	public ServerSocket getServerSocket() {
@@ -217,7 +280,7 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Get the port where the server is running
 	 * @return Returns the port where the server is listen on it
 	 */
 	public int getPort() {
@@ -225,7 +288,7 @@ public class NetworkConnectionManager {
 	}
 	
 	/**
-	 * 
+	 * Check the state of the server
 	 * @return Returns the state of the server: <b>true</b> running / <b>false</b> stopped
 	 */
 	public boolean isServerRunning() {
@@ -234,6 +297,7 @@ public class NetworkConnectionManager {
 	
 	/**
 	 * Ensure the capacity of the maximal number of clients for the server
+	 * @param newCapacity - Capacity of the new array
 	 */
 	private void ensureCapacity(int newCapacity) {
 		if (newCapacity < SIZECLIENTS) {
@@ -259,7 +323,7 @@ public class NetworkConnectionManager {
 	 */
 	private void initializeThreadArray() {
 		log.info("Inizialite the thread array new");
-		for (int i = 0; i < SIZECLIENTS; i++) {
+		for (int i = 0; i < SIZECLIENTS; ++i) {
 			thread[i] = null;
 		}
 	}

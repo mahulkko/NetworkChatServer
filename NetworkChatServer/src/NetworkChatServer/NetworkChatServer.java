@@ -1,5 +1,7 @@
 package NetworkChatServer;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.log4j.BasicConfigurator;
 
 import NetworkConnection.INetworkConnection;
@@ -12,8 +14,16 @@ public class NetworkChatServer {
 		
 		INetworkConnection connection = new NetworkConnection();
 		connection.startServer(12345);
+		LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<String>();
+		connection.startReceivingMessagesFromAllThreads(queue);
+		LinkedBlockingQueue<String> queue2 = new LinkedBlockingQueue<String>();
+		connection.startReceivingMessagesFromAllThreads(queue2);
 		while (true) {
-			
+			try {
+				System.out.println(queue.take());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		/*
 		char space = 0x1e;

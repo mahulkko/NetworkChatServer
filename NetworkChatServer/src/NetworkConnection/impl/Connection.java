@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.LinkedList;
+import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
@@ -33,14 +33,9 @@ public class Connection implements Runnable {
 	private int threadId;
 	
 	/**
-	 * Object for the synchronization
-	 */
-	private Object lock;
-	
-	/**
 	 * Queue for saving messages from the clients
 	 */
-	private LinkedList<LinkedBlockingQueue<String>> queue;
+	private Vector<LinkedBlockingQueue<String>> queue;
 	
 	/**
 	 * Socket from the connection to the client
@@ -58,20 +53,19 @@ public class Connection implements Runnable {
 	static Logger log = Logger.getLogger("NetworkConnection.Connection");
 	
 	/**
-	 * 
+	 * Connection of each single client
 	 * @param socket - Socket of the new client
 	 * @param threadId - Id of the thread
 	 */
 	public Connection(Socket socket, int threadId, NetworkConnectionManager manager) {
 		try {
-			log.info("Initialize the connection (ThreadId " + this.threadId + ")");
-			this.lock = new Object();
+			log.info("Initialize the connection (ThreadId " + threadId + ")");
 			this.threadId = threadId;
 			this.socket = socket;
 			this.networkConnectionManager = manager;
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			this.out = new PrintWriter(this.socket.getOutputStream(), true);
-			this.queue = new LinkedList<LinkedBlockingQueue<String>>();
+			this.queue = new Vector<LinkedBlockingQueue<String>>();
 		} catch (IOException e) {
 			log.error("Failed to initialize the connection (ThreadId " + this.threadId + ")");
 		}
@@ -83,10 +77,12 @@ public class Connection implements Runnable {
 	 * @return When the queue is successfully insert it will returns <b>true</b> on error it returns <b>false</b>
 	 */
 	public boolean startReceivingMessages(LinkedBlockingQueue<String> queue) {
-		synchronized(this.lock) {
-			log.info("Start receiving messages from client (ThreadId " + this.threadId + ")");
+		if (!this.queue.contains(queue)) {
+			log.info("Start receiving messages from client - Queue insert (ThreadId " + this.threadId + ")");
 			return this.queue.add(queue);
 		}
+		log.info("Queue already insert (ThreadId " + this.threadId + ")");
+		return false;
 	}
 	
 	/**
@@ -95,10 +91,12 @@ public class Connection implements Runnable {
 	 * @return When the queue is successfully deleted it will returns <b>true</b> on error it returns <b>false</b>
 	 */
 	public boolean stopReceivingMessages(LinkedBlockingQueue<String> queue) {
-		synchronized(this.lock) {
-			log.info("Stop receiving messages from client (ThreadId " + this.threadId + ")");
+		if (this.queue.contains(queue)) {
+			log.info("Stop receiving messages from client - Queue deleted (ThreadId " + this.threadId + ")");
 			return this.queue.remove(queue);
 		}
+		log.info("Queue isnt insert in here (ThreadId " + this.threadId + ")");
+		return false;
 	}
 	
 	/**
@@ -115,20 +113,19 @@ public class Connection implements Runnable {
 		while(this.networkConnectionManager.isServerRunning()) {
 			try {
 				log.info("Wait for a new message from client (ThreadId " + this.threadId + ")");
-				String msg = this.in.readLine();	
-				log.info("New message from client: " + msg + " (ThreadId " + this.threadId + ")");
-				log.info("Add message to the queues (ThreadId " + this.threadId + ")");
-				
-				synchronized(lock) {
-					for(int i = 0; i < this.queue.size(); i++) {
+				String msg = this.in.readLine();
+				if (!msg.contentEquals("null")) {
+					log.info("New message from client: " + msg + " (ThreadId " + this.threadId + ")");
+					log.info("Add message to the queues (ThreadId " + this.threadId + ")");
+					
+					for(int i = 0; i < this.queue.size(); ++i) {
 						try {
 							this.queue.get(i).put(msg);
 						} catch (InterruptedException e) {
 							log.info("Failed to put the message in the queue (ThreadId " + this.threadId + ")");
 						}
-					}		
-				}		
-				
+					}	
+				}				
 			} catch (IOException e) {
 				log.info("Failed to read the InputStream (ThreadId " + this.threadId + ")");
 				log.info("Client disconnected (ThreadId " + this.threadId + ")");
@@ -137,6 +134,7 @@ public class Connection implements Runnable {
 		}
 		log.info("Cleanup the connection (ThreadId " + this.threadId + ")");
 		this.networkConnectionManager.setThreadToNull(threadId);
+		this.networkConnectionManager.setConnectionToNull(threadId);
 		try {
 			log.info("Try to close the connection from the client (ThreadId " + this.threadId + ")");
 			this.socket.close();

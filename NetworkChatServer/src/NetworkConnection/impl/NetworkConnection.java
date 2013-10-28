@@ -16,6 +16,9 @@ public class NetworkConnection implements INetworkConnection {
 	 */
 	private NetworkConnectionManager networkConnectionManager;
 	
+	/**
+	 * NetworkConnection
+	 */
 	public NetworkConnection() {
 		this.networkConnectionManager = new NetworkConnectionManager();
 	}
@@ -38,6 +41,16 @@ public class NetworkConnection implements INetworkConnection {
 	@Override
 	public boolean stopReceivingMessagesFromThreadId(LinkedBlockingQueue<String> queue, int threadId) {
 		return this.networkConnectionManager.stopReceivingMessagesFromThreadId(queue, threadId);
+	}
+	
+	@Override
+	public boolean startReceivingMessagesFromAllThreads(LinkedBlockingQueue<String> queue) {
+		return this.networkConnectionManager.startReceivingMessagesFromAllThreads(queue);
+	}
+
+	@Override
+	public boolean stopReceivingMessagesFromAllThreads(LinkedBlockingQueue<String> queue) {
+		return this.networkConnectionManager.stopReceivingMessagesFromAllThreads(queue);
 	}
 
 	@Override
