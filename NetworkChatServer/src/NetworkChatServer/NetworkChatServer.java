@@ -18,6 +18,8 @@ public class NetworkChatServer {
 		connection.startReceivingMessagesFromAllThreads(queue);
 		LinkedBlockingQueue<String> queue2 = new LinkedBlockingQueue<String>();
 		connection.startReceivingMessagesFromAllThreads(queue2);
+		
+		/*
 		while (true) {
 			try {
 				System.out.println(queue.take());
@@ -25,6 +27,8 @@ public class NetworkChatServer {
 				e.printStackTrace();
 			}
 		}
+		*/
+		
 		/*
 		char space = 0x1e;
 		String test = "Hallo ^^ " + space + "wie gehts es " + space + "dir " + space + "?";

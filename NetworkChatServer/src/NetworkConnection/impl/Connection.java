@@ -138,6 +138,8 @@ public class Connection implements Runnable {
 		try {
 			log.info("Try to close the connection from the client (ThreadId " + this.threadId + ")");
 			this.socket.close();
+			this.in.close();
+			this.out.close();
 			log.info("Connection closed (ThreadId " + this.threadId + ")");
 		} catch (IOException e) {
 			log.error("Failed to close the connection (ThreadId " + this.threadId + ")");
