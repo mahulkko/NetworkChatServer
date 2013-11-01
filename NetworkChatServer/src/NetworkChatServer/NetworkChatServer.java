@@ -4,6 +4,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.BasicConfigurator;
 
+import UserManager.IUserManager;
+import UserManager.impl.UserManager;
+
 import Connection.NetworkConnection.INetworkConnection;
 import Connection.NetworkConnection.impl.NetworkConnection;
 
@@ -14,10 +17,7 @@ public class NetworkChatServer {
 		
 		INetworkConnection connection = new NetworkConnection();
 		connection.startServer(12345);
-		LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<String>();
-		connection.startReceivingMessagesFromAllThreads(queue);
-		LinkedBlockingQueue<String> queue2 = new LinkedBlockingQueue<String>();
-		connection.startReceivingMessagesFromAllThreads(queue2);
+		IUserManager userManager = new UserManager(connection);
 		
 		/*
 		while (true) {

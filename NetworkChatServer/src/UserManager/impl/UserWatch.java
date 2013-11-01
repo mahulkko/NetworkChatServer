@@ -2,6 +2,8 @@ package UserManager.impl;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.log4j.Logger;
+
 import Util.String.ISplitString;
 import Util.String.impl.SplitString;
 import Connection.NetworkConnection.INetworkConnection;
@@ -19,7 +21,7 @@ public class UserWatch implements Runnable {
 	private LinkedBlockingQueue<String> queue;
 	
 	/**
-	 * Userlookup for manage the user
+	 * UserLookup for manage the user
 	 */
 	private UserLookup userLookup;
 	
@@ -29,11 +31,17 @@ public class UserWatch implements Runnable {
 	private ISplitString splitString;
 	
 	/**
+	 * Logger for log4j UserWatch
+	 */
+	static Logger log = Logger.getLogger("UserManager.UserWatch");
+	
+	/**
 	 * UserWatch constructor
 	 * @param connection - NetworkConnection to the clients
 	 * @param lookup - UserLookup for manage the user
 	 */
 	public UserWatch(INetworkConnection connection, UserLookup lookup) {
+		log.info("Inizialize the UserWatch thread");
 		this.queue = new LinkedBlockingQueue<String>();
 		connection.startReceivingMessagesFromAllThreads(queue);
 		this.userLookup = lookup;
@@ -42,6 +50,7 @@ public class UserWatch implements Runnable {
 	
 	@Override
 	public void run() {
+		log.info("UserWatch thread started");
 		while (true) {
 			// Implement here the protocol for new user.
 		}

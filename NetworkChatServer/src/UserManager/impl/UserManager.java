@@ -1,6 +1,9 @@
 package UserManager.impl;
 
 import java.util.LinkedList;
+
+import org.apache.log4j.Logger;
+
 import Connection.NetworkConnection.INetworkConnection;
 import UserManager.IUserManager;
 
@@ -25,13 +28,20 @@ public class UserManager implements IUserManager {
 	 * Thread for the UserWatch
 	 */
 	private Thread thread;
+	
+	/**
+	 * Logger for log4j UserManager
+	 */
+	static Logger log = Logger.getLogger("UserManager");
 
 	/**
 	 * UserManagement constructor
 	 * @param connection - Connection to receive messages
 	 */
 	public UserManager(INetworkConnection connection) {
+		log.info("Inizialise the UserManager");
 		this.lookup = new UserLookup();
+		log.info("Start the UserWatch Thread");
 		this.userWatch = new UserWatch(connection, this.lookup);
 		this.thread = new Thread(this.userWatch);
 		this.thread.start();

@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 /**
  * User Lookup
  * @author Martin Hulkkonen
@@ -23,9 +25,15 @@ public class UserLookup {
 	private Map<Integer,String> threadLookup;
 	
 	/**
+	 * Logger for log4j UserLookup
+	 */
+	static Logger log = Logger.getLogger("UserManager.UserLookup");
+	
+	/**
 	 * UserLookup constructor
 	 */
 	public UserLookup() {
+		log.info("Inizialize the HashMaps");
 		this.nameLookup = new HashMap<String, LinkedList<Integer>>();
 		this.threadLookup = new HashMap<Integer,String>();
 	}
@@ -37,13 +45,16 @@ public class UserLookup {
 	 */
 	public void userConnected(String name, int threadId) {
 		if (this.nameLookup.containsKey(name)) {
+			log.info("User \"" + name + "\" already connected - Added a new ThreadId \"" + threadId + "\" to the connected user");
 			this.nameLookup.get(name).add(threadId);
 		} else {
 			LinkedList<Integer> list = new LinkedList<Integer>();
 			list.add(threadId);
 			this.nameLookup.put(name, list);
 			this.nameLookup.get(name).add(threadId);
+			log.info("User \"" + name + "\" has no connection at this moment - Create a new entry");
 		}
+		log.info("Make a entry for resolving the ThreadId \"" + threadId + " to name \"" + name +  "\"");
 		this.threadLookup.put(threadId, name);
 	}
 	
@@ -53,9 +64,11 @@ public class UserLookup {
 	 */
 	public void userDisconnected(int threadId) {
 		String name = this.threadLookup.remove(threadId);
+		log.info("User \"" + name + "\" closed the connection with threadId \"" + threadId + "\" - remove the entry");
 		this.nameLookup.get(name).remove(threadId);
-		
+		log.info("Proof if user \"" + name + "\" is still connected");
 		if (this.nameLookup.get(name).size() == 0) {
+			log.info("User \"" + name + "\" is no more online - remove all and clean up");
 			this.nameLookup.remove(name);
 		}		
 	}
