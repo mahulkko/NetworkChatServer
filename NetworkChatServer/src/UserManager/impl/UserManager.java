@@ -2,7 +2,7 @@ package UserManager.impl;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import NetworkConnection.INetworkConnection;
+import Connection.NetworkConnection.INetworkConnection;
 import UserManager.IUserManager;
 
 public class UserManager implements IUserManager {

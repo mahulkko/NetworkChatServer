@@ -1,4 +1,4 @@
-package NetworkConnection;
+package Connection.NetworkConnection;
 
 import java.util.concurrent.LinkedBlockingQueue;
 

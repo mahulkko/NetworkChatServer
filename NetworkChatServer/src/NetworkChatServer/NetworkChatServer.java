@@ -4,8 +4,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.BasicConfigurator;
 
-import NetworkConnection.INetworkConnection;
-import NetworkConnection.impl.NetworkConnection;
+import Connection.NetworkConnection.INetworkConnection;
+import Connection.NetworkConnection.impl.NetworkConnection;
 
 public class NetworkChatServer {
 
