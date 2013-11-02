@@ -54,19 +54,24 @@ public class UserWatch implements Runnable {
 			try {
 				String msg = this.queue.take();
 				String splitMsg[] = this.splitString.splitStringByChar(msg, space);
-				
-				int command = Integer.parseInt(splitMsg[1]);
-				int threadId = Integer.parseInt(splitMsg[0]);
-				
-				switch (command) {
+				try {
+					int command = Integer.parseInt(splitMsg[1]);
+					int threadId = Integer.parseInt(splitMsg[0]);
+					
+					switch (command) {
 					case 0001:
-						this.userLookup.userConnected(splitMsg[2], threadId);
+						if (splitMsg.length == 3) {
+							this.userLookup.userConnected(splitMsg[2], threadId);
+						}
 						break;
 						
 					case 0002:
 						this.userLookup.userDisconnected(threadId);
 						break;
-						
+					}
+					
+				} catch (NumberFormatException e) {
+					log.error("Failed to read the command");
 				}
 				log.info(this.userLookup.whoIsOnline().toString());
 			} catch (InterruptedException e) {

@@ -14,7 +14,6 @@ public class NetworkChatServer {
 		INetworkConnection connection = new NetworkConnection();
 		connection.startServer(12345);
 		IUserManager userManager = new UserManager(connection);
-		
 		/*
 		while (true) {
 			try {
