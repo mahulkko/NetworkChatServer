@@ -1,12 +1,8 @@
 package NetworkChatServer;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.log4j.BasicConfigurator;
-
 import UserManager.IUserManager;
 import UserManager.impl.UserManager;
-
 import Connection.NetworkConnection.INetworkConnection;
 import Connection.NetworkConnection.impl.NetworkConnection;
 

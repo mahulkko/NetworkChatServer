@@ -51,10 +51,9 @@ public class UserLookup {
 			LinkedList<Integer> list = new LinkedList<Integer>();
 			list.add(threadId);
 			this.nameLookup.put(name, list);
-			this.nameLookup.get(name).add(threadId);
 			log.info("User \"" + name + "\" has no connection at this moment - Create a new entry");
 		}
-		log.info("Make a entry for resolving the ThreadId \"" + threadId + " to name \"" + name +  "\"");
+		log.info("Make a entry for resolving the ThreadId \"" + threadId + "\" to name \"" + name +  "\"");
 		this.threadLookup.put(threadId, name);
 	}
 	
@@ -63,14 +62,16 @@ public class UserLookup {
 	 * @param threadId - Thread id of the closed connection
 	 */
 	public void userDisconnected(int threadId) {
-		String name = this.threadLookup.remove(threadId);
+		String name = this.threadLookup.remove(new Integer(threadId));
 		log.info("User \"" + name + "\" closed the connection with threadId \"" + threadId + "\" - remove the entry");
-		this.nameLookup.get(name).remove(threadId);
+		this.nameLookup.get(name).remove(new Integer(threadId));
 		log.info("Proof if user \"" + name + "\" is still connected");
 		if (this.nameLookup.get(name).size() == 0) {
 			log.info("User \"" + name + "\" is no more online - remove all and clean up");
 			this.nameLookup.remove(name);
-		}		
+		} else {
+			log.info("User \"" + name + "\" is online");
+		}
 	}
 	
 	/**

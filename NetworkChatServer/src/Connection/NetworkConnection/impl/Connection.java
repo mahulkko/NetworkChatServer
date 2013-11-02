@@ -110,6 +110,7 @@ public class Connection implements Runnable {
 
 	@Override
 	public void run() {
+		char space = 0x1e;
 		while(this.networkConnectionManager.isServerRunning()) {
 			try {
 				log.info("Wait for a new message from client (ThreadId " + this.threadId + ")");
@@ -120,7 +121,7 @@ public class Connection implements Runnable {
 					
 					for(int i = 0; i < this.queue.size(); ++i) {
 						try {
-							this.queue.get(i).put(msg);
+							this.queue.get(i).put(String.valueOf(this.threadId) + space + msg);
 						} catch (InterruptedException e) {
 							log.info("Failed to put the message in the queue (ThreadId " + this.threadId + ")");
 						}
@@ -132,6 +133,16 @@ public class Connection implements Runnable {
 				break;
 			}
 		}
+		
+		log.info("Send message to all that the client has disconnected");
+		for(int i = 0; i < this.queue.size(); ++i) {
+			try {
+				this.queue.get(i).put(String.valueOf(this.threadId) + space + "0002");
+			} catch (InterruptedException e) {
+				log.info("Failed to put the message in the queue (ThreadId " + this.threadId + ")");
+			}
+		}	
+		
 		log.info("Cleanup the connection (ThreadId " + this.threadId + ")");
 		this.networkConnectionManager.setThreadToNull(threadId);
 		this.networkConnectionManager.setConnectionToNull(threadId);

@@ -44,7 +44,7 @@ public class SplitString implements ISplitString {
 				log.info("Found a new split char - so split the string");
 				ensureCapacity(this.parts.length + 1);
 				parts[this.count] = string.subSequence(this.place, i).toString();
-				this.place = i;
+				this.place = i+1;
 				this.count++;
 			}
 		}
