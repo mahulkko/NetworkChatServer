@@ -1,9 +1,9 @@
-package userManager.impl;
+package manager.user.impl;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.log4j.Logger;
 
-import connection.networkConnection.INetworkConnection;
+import connection.network.INetworkConnection;
 import util.string.ISplitString;
 import util.string.impl.SplitString;
 

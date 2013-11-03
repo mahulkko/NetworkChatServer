@@ -1,4 +1,4 @@
-package messageManager;
+package manager.message;
 
 /**
  * 

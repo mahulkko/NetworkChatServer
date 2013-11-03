@@ -1,11 +1,11 @@
-package networkChatServer;
+package networkchatserver;
 
 import org.apache.log4j.BasicConfigurator;
 
-import connection.networkConnection.INetworkConnection;
-import connection.networkConnection.impl.NetworkConnection;
-import userManager.IUserManager;
-import userManager.impl.UserManager;
+import connection.network.INetworkConnection;
+import connection.network.impl.NetworkConnection;
+import manager.user.IUserManager;
+import manager.user.impl.UserManager;
 
 /**
  * 

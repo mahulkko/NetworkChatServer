@@ -1,4 +1,4 @@
-package messageManager.impl;
+package manager.message.impl;
 
 /**
  * 

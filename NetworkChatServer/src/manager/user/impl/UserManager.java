@@ -1,10 +1,10 @@
-package userManager.impl;
+package manager.user.impl;
 
 import java.util.List;
 import org.apache.log4j.Logger;
 
-import connection.networkConnection.INetworkConnection;
-import userManager.IUserManager;
+import connection.network.INetworkConnection;
+import manager.user.IUserManager;
 
 /**
  * UserManager

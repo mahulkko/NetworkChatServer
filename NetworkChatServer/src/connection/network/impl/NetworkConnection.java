@@ -1,8 +1,8 @@
-package connection.networkConnection.impl;
+package connection.network.impl;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import connection.networkConnection.INetworkConnection;
+import connection.network.INetworkConnection;
 
 
 /**

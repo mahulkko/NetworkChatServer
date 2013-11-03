@@ -1,4 +1,4 @@
-package userManager.impl;
+package manager.user.impl;
 
 import java.util.HashMap;
 import java.util.Iterator;

@@ -1,6 +1,6 @@
-package messageManager.impl;
+package manager.message.impl;
 
-import messageManager.IMessageManager;
+import manager.message.IMessageManager;
 
 /**
  * 

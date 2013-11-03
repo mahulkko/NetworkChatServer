@@ -1,4 +1,4 @@
-package connection.databaseConnection.impl;
+package connection.database.impl;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,7 +8,7 @@ import java.sql.Statement;
 
 import org.apache.log4j.Logger;
 
-import connection.databaseConnection.IDatabaseConnection;
+import connection.database.IDatabaseConnection;
 
 /**
  * 
