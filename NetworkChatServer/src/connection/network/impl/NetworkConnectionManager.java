@@ -9,12 +9,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
+import util.observer.acceptclients.IObserverAcceptClients;
+import util.observer.connection.IObserverConnection;
+
 /**
  * 
  * @author Martin Hulkkonen
  *
  */
-public class NetworkConnectionManager {
+public class NetworkConnectionManager implements IObserverAcceptClients, IObserverConnection {
     
     /**
      * ServerSocket where the server runs
@@ -94,7 +97,9 @@ public class NetworkConnectionManager {
                     log.info("Server ist started on port: " + port);
                     
                     log.info("Try to start a new thread for accepting clients");
-                    this.acceptClients = new Thread(new AcceptClients(this));
+                    AcceptClients clientThread = new AcceptClients(this.server);
+                    clientThread.registerObserver(this);
+                    this.acceptClients = new Thread(clientThread);
                     this.acceptClients.start();
                     
                     this.port = port;
@@ -135,35 +140,6 @@ public class NetworkConnectionManager {
             log.info("Server didnt running");
             return false;
         }
-    }
-    
-    /**
-     * Manage the connection of a new client
-     * @param socket - Socket of the new accepted client
-     * @return Returns the ThreadId of the accepted thread
-     */
-    public int manageNewConnection(Socket socket) {
-        log.info("Search a place for the client");
-        for (int i = 0; i < sizeClients; ++i) {
-            if (thread[i] == null) {
-                log.info("Found a place for the client");
-                log.info("Create a new connection thread - ThreadId: " + i);
-                this.connection[i] = new Connection(socket, i, this);
-                thread[i] = new Thread(this.connection[i]);
-                log.info("Start the connection thread - ThreadId: " +i);
-                thread[i].start();
-                log.info("Insert the queues where listen to the new client");
-                
-                for (int k = 0; k < this.queue.size(); ++k) {
-                    this.connection[i].startReceivingMessages(this.queue.get(k));
-                }
-                return i;
-            }
-        }
-        log.info("No place found for the client");
-        ensureCapacity(sizeClients * 2);
-        manageNewConnection(socket);
-        return -1;
     }
     
     /**
@@ -247,40 +223,6 @@ public class NetworkConnectionManager {
     }
     
     /**
-     * Set the thread in the array to null
-     * @param threadId - Set this thread to null
-     * @return On success it will return <b>true</b> on failure <b>false</b>
-     */
-    public boolean setThreadToNull(int threadId) {
-        if (this.thread.length > threadId) {
-            this.thread[threadId] = null;
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Set the connection in the array to null
-     * @param connectionId - Set this connection to null
-     * @return On success it will return <b>true</b> on failure <b>false</b>
-     */
-    public boolean setConnectionToNull(int threadId) {
-        if (this.connection.length > threadId) {
-            this.connection[threadId] = null;
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Get the server socket from the connection
-     * @return Returns the used server socket
-     */
-    public ServerSocket getServerSocket() {
-        return this.server;
-    }
-    
-    /**
      * Get the port where the server is running
      * @return Returns the port where the server is listen on it
      */
@@ -294,6 +236,81 @@ public class NetworkConnectionManager {
      */
     public boolean isServerRunning() {
         return this.isRunning;
+    }
+    
+
+    /**
+     * Update the observer
+     * @param threadId - Id of the new connected thread
+     */
+    @Override
+    public void updateClients(Socket client) {
+        this.manageNewConnection(client);        
+    }
+    
+    /**
+     * Update the observer
+     * @param threadId - Id of the new connected thread
+     */
+    @Override
+    public void updateConnection(int threadId) {
+        this.setConnectionToNull(threadId);
+        this.setThreadToNull(threadId);
+    }
+    
+    /**
+     * Set the thread in the array to null
+     * @param threadId - Set this thread to null
+     * @return On success it will return <b>true</b> on failure <b>false</b>
+     */
+    private boolean setThreadToNull(int threadId) {
+        if (this.thread.length > threadId) {
+            this.thread[threadId] = null;
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Set the connection in the array to null
+     * @param connectionId - Set this connection to null
+     * @return On success it will return <b>true</b> on failure <b>false</b>
+     */
+    private boolean setConnectionToNull(int threadId) {
+        if (this.connection.length > threadId) {
+            this.connection[threadId] = null;
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Manage the connection of a new client
+     * @param socket - Socket of the new accepted client
+     * @return Returns the ThreadId of the accepted thread
+     */
+    private int manageNewConnection(Socket socket) {
+        log.info("Search a place for the client");
+        for (int i = 0; i < sizeClients; ++i) {
+            if (thread[i] == null) {
+                log.info("Found a place for the client");
+                log.info("Create a new connection thread - ThreadId: " + i);
+                this.connection[i] = new Connection(socket, i);
+                thread[i] = new Thread(this.connection[i]);
+                log.info("Start the connection thread - ThreadId: " +i);
+                thread[i].start();
+                log.info("Insert the queues where listen to the new client");
+                
+                for (int k = 0; k < this.queue.size(); ++k) {
+                    this.connection[i].startReceivingMessages(this.queue.get(k));
+                }
+                return i;
+            }
+        }
+        log.info("No place found for the client");
+        ensureCapacity(sizeClients * 2);
+        manageNewConnection(socket);
+        return -1;
     }
     
     /**

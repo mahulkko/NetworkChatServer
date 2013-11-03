@@ -11,12 +11,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 
+import util.observer.connection.IObserverConnection;
+import util.observer.connection.ISubjectConnection;
+
 /**
  * 
  * @author Martin Hulkkonen
  *
  */
-public class Connection implements Runnable {
+public class Connection implements Runnable, ISubjectConnection {
 
     /**
      * BufferedReder for the InputStream
@@ -39,14 +42,14 @@ public class Connection implements Runnable {
     private List<LinkedBlockingQueue<String>> queue;
     
     /**
+     * List for the observer
+     */
+    private List<IObserverConnection> observer;
+    
+    /**
      * Socket from the connection to the client
      */
     private Socket socket;
-    
-    /**
-     * NetworkConnectionManager
-     */
-    private NetworkConnectionManager networkConnectionManager;
     
     /**
      * Logger for log4j connection
@@ -63,15 +66,15 @@ public class Connection implements Runnable {
      * @param socket - Socket of the new client
      * @param threadId - Id of the thread
      */
-    public Connection(Socket socket, int threadId, NetworkConnectionManager manager) {
+    public Connection(Socket socket, int threadId) {
         try {
             log.info("Initialize the connection (ThreadId " + threadId + ")");
             this.threadId = threadId;
             this.socket = socket;
-            this.networkConnectionManager = manager;
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.out = new PrintWriter(this.socket.getOutputStream(), true);
             this.queue = new LinkedList<LinkedBlockingQueue<String>>();
+            this.observer = new LinkedList<IObserverConnection>();
         } catch (IOException e) {
             log.error("Failed to initialize the connection (ThreadId " + this.threadId + ")");
         }
@@ -120,7 +123,7 @@ public class Connection implements Runnable {
      */
     @Override
     public void run() {
-        while(this.networkConnectionManager.isServerRunning()) {
+        while(true) {
             try {
                 log.info("Wait for a new message from client (ThreadId " + this.threadId + ")");
                 String msg = this.in.readLine();
@@ -153,8 +156,7 @@ public class Connection implements Runnable {
         }
 
         log.info("Cleanup the connection (ThreadId " + this.threadId + ")");
-        this.networkConnectionManager.setThreadToNull(threadId);
-        this.networkConnectionManager.setConnectionToNull(threadId);
+        this.notifyObservers(threadId);
         try {
             log.info("Try to close the connection from the client (ThreadId " + this.threadId + ")");
             this.socket.close();
@@ -165,5 +167,34 @@ public class Connection implements Runnable {
             log.error("Failed to close the connection (ThreadId " + this.threadId + ")");
         }
         log.info("Connection thread stopps now (ThreadId " + this.threadId + ")");
+    }
+
+    /**
+     * Register new observer
+     * @param observer - Observer
+     */
+    @Override
+    public void registerObserver(IObserverConnection observer) {
+        this.observer.add(observer);
+    }
+
+    /**
+     * Remove the insert observer
+     * @param observer - Observer
+     */
+    @Override
+    public void removeObserver(IObserverConnection observer) {
+       this.removeObserver(observer);
+    }
+
+    /**
+     * Notify all observer
+     * @param threadId - threadId
+     */
+    @Override
+    public void notifyObservers(int threadId) {
+        for (int i = 0; i < this.observer.size(); ++i) {
+            this.observer.get(i).updateConnection(threadId);
+        }
     }
 }
