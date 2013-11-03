@@ -3,7 +3,8 @@ package connection.network.impl;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
@@ -38,17 +39,17 @@ public class NetworkConnectionManager {
     /**
      * Number of the maximal clients for the server
      */
-    private int SIZECLIENTS = 1;
+    private int sizeClients = 1;
     
     /**
      * ThreadArray for the handling of the communication
      */
-    private Thread thread[] = new Thread[SIZECLIENTS];
+    private Thread thread[] = new Thread[sizeClients];
     
     /**
      * ConnectionArray for the connection of each client
      */
-    private Connection connection[] = new Connection[SIZECLIENTS];
+    private Connection connection[] = new Connection[sizeClients];
     
     /**
      * Thread for accept clients
@@ -58,7 +59,7 @@ public class NetworkConnectionManager {
     /**
      * Vector for the Queues with the Receive from all threads function
      */
-    private Vector<LinkedBlockingQueue<String>> queue;
+    private List<LinkedBlockingQueue<String>> queue;
     
     /**
      * Logger for log4j connection
@@ -75,7 +76,7 @@ public class NetworkConnectionManager {
         this.port = -1;
         this.isRunning = false;
         this.lock = new Object();
-        this.queue = new Vector<LinkedBlockingQueue<String>>();
+        this.queue = new ArrayList<LinkedBlockingQueue<String>>();
     }
     
     /**
@@ -143,7 +144,7 @@ public class NetworkConnectionManager {
      */
     public int manageNewConnection(Socket socket) {
         log.info("Search a place for the client");
-        for (int i = 0; i < SIZECLIENTS; ++i) {
+        for (int i = 0; i < sizeClients; ++i) {
             if (thread[i] == null) {
                 log.info("Found a place for the client");
                 log.info("Create a new connection thread - ThreadId: " + i);
@@ -154,13 +155,13 @@ public class NetworkConnectionManager {
                 log.info("Insert the queues where listen to the new client");
                 
                 for (int k = 0; k < this.queue.size(); ++k) {
-                    this.connection[i].startReceivingMessages(this.queue.elementAt(k));
+                    this.connection[i].startReceivingMessages(this.queue.get(k));
                 }
                 return i;
             }
         }
         log.info("No place found for the client");
-        ensureCapacity(SIZECLIENTS * 2);
+        ensureCapacity(sizeClients * 2);
         manageNewConnection(socket);
         return -1;
     }
@@ -300,7 +301,7 @@ public class NetworkConnectionManager {
      * @param newCapacity - Capacity of the new array
      */
     private void ensureCapacity(int newCapacity) {
-        if (newCapacity < SIZECLIENTS) {
+        if (newCapacity < sizeClients) {
             log.error("Old capacity is bigger than the new one");
             return;
         }
@@ -308,14 +309,14 @@ public class NetworkConnectionManager {
         Thread[] old = thread;
         thread = new Thread[newCapacity];
         initializeThreadArray();
-        System.arraycopy(old, 0, thread, 0, SIZECLIENTS);
+        System.arraycopy(old, 0, thread, 0, sizeClients);
         
         log.info("Make the connection array bigger");
         Connection[] old2 = connection;
         connection = new Connection[newCapacity];
-        System.arraycopy(old2, 0, connection, 0, SIZECLIENTS);
+        System.arraycopy(old2, 0, connection, 0, sizeClients);
         log.info("Arrays have now a new capayity of " + newCapacity + " clients");
-        SIZECLIENTS = newCapacity;
+        sizeClients = newCapacity;
     } 
     
     /**
@@ -323,7 +324,7 @@ public class NetworkConnectionManager {
      */
     private void initializeThreadArray() {
         log.info("Inizialite the thread array new");
-        for (int i = 0; i < SIZECLIENTS; ++i) {
+        for (int i = 0; i < sizeClients; ++i) {
             thread[i] = null;
         }
     }

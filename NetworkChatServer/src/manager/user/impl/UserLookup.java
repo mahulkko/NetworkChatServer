@@ -46,13 +46,13 @@ public class UserLookup {
      */
     public void userConnected(String name, int threadId) {
         if (this.nameLookup.containsKey(name)) {
-            log.info("User \"" + name + "\" already connected - Added a new ThreadId \"" + threadId + "\" to the connected user");
+            log.info("\"" + name + "\" already connected - Added a new ThreadId \"" + threadId + "\" to the connected user");
             this.nameLookup.get(name).add(threadId);
         } else {
             LinkedList<Integer> list = new LinkedList<Integer>();
             list.add(threadId);
             this.nameLookup.put(name, list);
-            log.info("User \"" + name + "\" has no connection at this moment - Create a new entry");
+            log.info("\"" + name + "\" has no connection at this moment - Create a new entry");
         }
         log.info("Make a entry for resolving the ThreadId \"" + threadId + "\" to name \"" + name +  "\"");
         this.threadLookup.put(threadId, name);
@@ -65,14 +65,14 @@ public class UserLookup {
     public void userDisconnected(int threadId) {
         if (this.threadLookup.containsKey(threadId)) {
             String name = this.threadLookup.remove(Integer.valueOf(threadId));
-            log.info("User \"" + name + "\" closed the connection with threadId \"" + threadId + "\" - remove the entry");
+            log.info("\"" + name + "\" closed the connection with threadId \"" + threadId + "\" - remove the entry");
             this.nameLookup.get(name).remove(Integer.valueOf(threadId));
-            log.info("Proof if user \"" + name + "\" is still connected");
+            log.info("Proof if \"" + name + "\" is still connected");
             if (this.nameLookup.get(name).size() == 0) {
-                log.info("User \"" + name + "\" is no more online - remove all and clean up");
+                log.info("\"" + name + "\" is no more online - remove all and clean up");
                 this.nameLookup.remove(name);
             } else {
-                log.info("User \"" + name + "\" is online");
+                log.info("\"" + name + "\" is online");
             }
         } else {
             log.info("User with threadId \"" + threadId + "\" already disconnected");

@@ -21,7 +21,7 @@ public class UserManager implements IUserManager {
     /**
      * Logger for log4j UserManager
      */
-    static Logger log = Logger.getLogger("UserManager");
+    private static Logger log = Logger.getLogger("UserManager");
 
     /**
      * UserManagement constructor

@@ -32,7 +32,7 @@ public class UserWatch implements Runnable {
     /**
      * Logger for log4j UserWatch
      */
-    static Logger log = Logger.getLogger("UserManager.UserWatch");
+    private static Logger log = Logger.getLogger("UserManager.UserWatch");
 
     /**
      * SpaceChar for splitting the strings

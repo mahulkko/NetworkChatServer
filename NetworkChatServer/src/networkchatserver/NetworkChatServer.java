@@ -12,7 +12,14 @@ import manager.user.impl.UserManager;
  * @author Martin Hulkkonen
  *
  */
-public class NetworkChatServer {
+public final class NetworkChatServer {
+    
+    /**
+     * NetworkChatServer
+     */
+    private NetworkChatServer() {
+        // Nothing in here
+    }
     
     /**
      * Constant for Number 3
@@ -38,27 +45,7 @@ public class NetworkChatServer {
         /**
          * UserManager
          */
+        @SuppressWarnings("unused")
         IUserManager userManager = new UserManager(connection);
-        /*
-        while (true) {
-            try {
-                System.out.println(queue.take());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        */
-        
-        /*
-        char space = 0x1e;
-        String test = "Hallo ^^ " + space + "wie gehts es " + space + "dir " + space + "?";
-        System.out.println(test);
-        SplitString string = new SplitString();
-        String[] splitt = string.splitStringByChar(test, space);
-        
-        for(int i = 0; i < splitt.length; i++) {
-            System.out.println(splitt[i]);
-        }
-        */
     }
 }

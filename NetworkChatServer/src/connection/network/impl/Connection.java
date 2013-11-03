@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Vector;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
@@ -35,7 +36,7 @@ public class Connection implements Runnable {
     /**
      * Queue for saving messages from the clients
      */
-    private Vector<LinkedBlockingQueue<String>> queue;
+    private List<LinkedBlockingQueue<String>> queue;
     
     /**
      * Socket from the connection to the client
@@ -70,7 +71,7 @@ public class Connection implements Runnable {
             this.networkConnectionManager = manager;
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.out = new PrintWriter(this.socket.getOutputStream(), true);
-            this.queue = new Vector<LinkedBlockingQueue<String>>();
+            this.queue = new LinkedList<LinkedBlockingQueue<String>>();
         } catch (IOException e) {
             log.error("Failed to initialize the connection (ThreadId " + this.threadId + ")");
         }
